@@ -1,0 +1,52 @@
+// TODO: 学习谷歌api设计规范，重新定义一下api与命名
+// TODO: 为什么要有UserID？不放在元数据里吗？寻找微服务间调用的最佳实践
+
+syntax = "proto3";
+
+package arkinfra.v1;
+
+service InfraService {
+    // 初始化基建方法，用于新玩家初始化基建
+    // 传入UserID，没有返回值
+    rpc CreateInfra(User) returns (CreateInfraReply);
+
+    // 首页获取基建产出数目、问题数目
+    // 传入UserID，返回产出数目与问题数目
+    rpc GetInfo(User) returns (GetInfoReply);
+
+    // 基建详情
+    // 传入UserID，返回基建详情
+    rpc GetDetail(User) returns (GetDetailReply);
+}
+
+// 一般来讲应该是调用user服务的pb文件
+message User {
+    string user_id = 1;
+}
+
+message CreateInfraReply {}
+
+// 首页获取基建产出数目、问题数目的返回值
+message GetInfoReply {
+    int32 product_amount = 1;
+    int32 error_amount = 2;
+}
+
+message Room {
+    string room_id = 1;
+    int32 room_type = 2;
+    int32 room_level = 3;
+
+    repeated string character_id = 4;
+    repeated int32 character_ftg = 5;
+
+    int32 storage = 6;
+    int32 storage_used = 7;
+
+    int32 item_id = 8;
+    int32 item_progress = 9;
+}
+
+message GetDetailReply {
+    repeated Room rooms = 1;
+}
