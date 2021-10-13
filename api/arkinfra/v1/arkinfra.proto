@@ -5,18 +5,29 @@ syntax = "proto3";
 
 package arkinfra.v1;
 
+option go_package = ".;v1";
+
 service InfraService {
     // 初始化基建方法，用于新玩家初始化基建
-    // 传入UserID，没有返回值
     rpc CreateInfra(User) returns (CreateInfraReply);
 
     // 首页获取基建产出数目、问题数目
-    // 传入UserID，返回产出数目与问题数目
     rpc GetInfo(User) returns (GetInfoReply);
 
     // 基建详情
-    // 传入UserID，返回基建详情
     rpc GetDetail(User) returns (GetDetailReply);
+
+    // 获取物品
+    rpc GetProduction(GetProductionReq) returns (GetProductionReply);
+
+    // 升级建筑
+    rpc UpdateInfra(UpdateInfraReq) returns (UpdateInfraReply);
+
+    // 更改生产物品
+    rpc ChangeProduction(ChangeProductionReq) returns (ChangeProductionReply);
+
+    // 更改工作人员
+    rpc ChangeWorker(ChangeWorkerReq) returns (ChangeWorkerReply);
 }
 
 // 一般来讲应该是调用user服务的pb文件
@@ -32,8 +43,9 @@ message GetInfoReply {
     int32 error_amount = 2;
 }
 
+// 房间详细信息
 message Room {
-    string room_id = 1;
+    int32 room_id = 1;
     int32 room_type = 2;
     int32 room_level = 3;
 
@@ -47,6 +59,49 @@ message Room {
     int32 item_progress = 9;
 }
 
+// 每个房间的详细信息
 message GetDetailReply {
     repeated Room rooms = 1;
 }
+
+message GetProductionReq {
+    User user = 1;
+    repeated int32 room_id = 2;
+}
+
+message GetProductionReply {
+    repeated Production productions = 1;
+}
+
+message Production {
+    int32 item_id = 1;
+    int32 item_amount = 2;
+}
+
+message UpdateInfraReq {
+    User user = 1;
+    int32 room_id = 2;
+}
+
+message UpdateInfraReply {}
+
+message ChangeProductionReq {
+    User user = 1;
+    int32 room_id = 2;
+    int32 item_id = 3;
+    int32 item_amount = 4;
+}
+
+message ChangeProductionReply {
+    // 修改物品前生产完毕的物品和数量
+    int32 item_producted_id = 1;
+    int32 item_producted_amount = 2;
+}
+
+message ChangeWorkerReq {
+    User user = 1;
+    int32 room_id = 2;
+    repeated int32 character_id = 3;
+}
+
+message ChangeWorkerReply {}
