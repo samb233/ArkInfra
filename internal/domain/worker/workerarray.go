@@ -13,6 +13,17 @@ func NewWorkerArray(workers ...*Worker) *WorkerArray {
 	}
 }
 
+// 确认工人是否有人疲劳
+func (wa *WorkerArray) IsOneExhausted() bool {
+	for _, worker := range wa.Workers {
+		if worker.IsExhausted() {
+			return true
+		}
+	}
+
+	return false
+}
+
 // 确认工人是否全部疲劳
 // 工人全部疲劳时，房间将停止运作
 func (wa *WorkerArray) IsAllExhausted() bool {
