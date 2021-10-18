@@ -4,6 +4,8 @@
 package room
 
 import (
+	"time"
+
 	"github.com/samb233/arkinfra/internal/domain/item"
 	"github.com/samb233/arkinfra/internal/domain/worker"
 )
@@ -29,6 +31,9 @@ type Room struct {
 	// 房间等级
 	Level int
 
+	// 上次操作时间
+	LastOpTime time.Time
+
 	// 房间库存
 	Storage int
 
@@ -47,25 +52,38 @@ type Room struct {
 }
 
 // 新建房间
-func NewRoom(id, roomType, level int, options ...RoomOptions) *Room {
+func NewRoom(id, roomType, level int, lastOpTime time.Time, options ...RoomOptions) *Room {
 	room := &Room{
-		ID:       id,
-		RoomType: roomType,
-		Level:    level,
-		Storage:  DefaultRoomStorage,
+		ID:         id,
+		RoomType:   roomType,
+		Level:      level,
+		LastOpTime: lastOpTime,
+		Storage:    DefaultRoomStorage,
 	}
 
 	for _, option := range options {
 		option(room)
 	}
 
-	room.GetBonus()
+	room.AddBonusStorage()
 
 	return room
 }
 
-// 获取房间奖励信息
-func (r *Room) GetBonus() {
+// 刷新房间信息
+func (r *Room) Flush() {
+	minutes := int(time.Since(r.LastOpTime).Minutes())
+	r.Produce(minutes)
+	r.UpdateOpTime()
+}
+
+// 更新上次操作时间
+func (r *Room) UpdateOpTime() {
+	r.LastOpTime = time.Now()
+}
+
+// 将奖励库存加到库存中
+func (r *Room) AddBonusStorage() {
 	if r.Workers == nil {
 		return
 	}
@@ -77,19 +95,28 @@ func (r *Room) GetBonus() {
 
 // 设置工人
 func (r *Room) SetWorkers(workers *worker.WorkerArray) {
+	r.Flush()
 	r.Workers = workers
-	r.GetBonus()
+	r.AddBonusStorage()
+}
+
+// 获取物品
+func (r *Room) GetItem() (itemID int, amount int) {
+	r.Flush()
+
+	itemID = r.Item.ID
+	amount = r.StorageUsed / r.Item.Storage
+	r.StorageUsed = 0
+	return
 }
 
 // 重设物品
 // 重设时会清空库存，获取物品
 func (r *Room) GetItemAndReSet(item *item.Item) (itemID int, amount int) {
-	itemID = r.Item.ID
-	amount = r.StorageUsed / r.Item.Storage
+	itemID, amount = r.GetItem()
 
-	r.StorageUsed = 0
 	r.Item = item
-	r.GetBonus()
+	r.AddBonusStorage()
 
 	return
 }
@@ -135,6 +162,11 @@ func (r *Room) IsNotWorking() bool {
 // 库存是否已经用尽
 func (r *Room) IsFull() bool {
 	return r.Storage == r.StorageUsed
+}
+
+// 是否有工人疲劳
+func (r *Room) IsOneExhausted() bool {
+	return r.Workers.IsOneExhausted()
 }
 
 // 房间初始化选项
