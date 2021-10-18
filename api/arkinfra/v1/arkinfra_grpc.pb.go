@@ -24,12 +24,14 @@ type InfraServiceClient interface {
 	GetInfo(ctx context.Context, in *User, opts ...grpc.CallOption) (*GetInfoReply, error)
 	// 基建详情
 	GetDetail(ctx context.Context, in *User, opts ...grpc.CallOption) (*GetDetailReply, error)
+	// 单个房间详情
+	GetRoomDetail(ctx context.Context, in *RoomReq, opts ...grpc.CallOption) (*Room, error)
 	// 获取物品
 	GetProduction(ctx context.Context, in *GetProductionReq, opts ...grpc.CallOption) (*GetProductionReply, error)
 	// 升级建筑
-	UpdateInfra(ctx context.Context, in *UpdateInfraReq, opts ...grpc.CallOption) (*UpdateInfraReply, error)
+	UpdateRoom(ctx context.Context, in *RoomReq, opts ...grpc.CallOption) (*UpdateRoomReply, error)
 	// 更改生产物品
-	ChangeProduction(ctx context.Context, in *ChangeProductionReq, opts ...grpc.CallOption) (*ChangeProductionReply, error)
+	ChangeProduction(ctx context.Context, in *ChangeProductionReq, opts ...grpc.CallOption) (*Production, error)
 	// 更改工作人员
 	ChangeWorker(ctx context.Context, in *ChangeWorkerReq, opts ...grpc.CallOption) (*ChangeWorkerReply, error)
 }
@@ -69,6 +71,15 @@ func (c *infraServiceClient) GetDetail(ctx context.Context, in *User, opts ...gr
 	return out, nil
 }
 
+func (c *infraServiceClient) GetRoomDetail(ctx context.Context, in *RoomReq, opts ...grpc.CallOption) (*Room, error) {
+	out := new(Room)
+	err := c.cc.Invoke(ctx, "/arkinfra.v1.InfraService/GetRoomDetail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *infraServiceClient) GetProduction(ctx context.Context, in *GetProductionReq, opts ...grpc.CallOption) (*GetProductionReply, error) {
 	out := new(GetProductionReply)
 	err := c.cc.Invoke(ctx, "/arkinfra.v1.InfraService/GetProduction", in, out, opts...)
@@ -78,17 +89,17 @@ func (c *infraServiceClient) GetProduction(ctx context.Context, in *GetProductio
 	return out, nil
 }
 
-func (c *infraServiceClient) UpdateInfra(ctx context.Context, in *UpdateInfraReq, opts ...grpc.CallOption) (*UpdateInfraReply, error) {
-	out := new(UpdateInfraReply)
-	err := c.cc.Invoke(ctx, "/arkinfra.v1.InfraService/UpdateInfra", in, out, opts...)
+func (c *infraServiceClient) UpdateRoom(ctx context.Context, in *RoomReq, opts ...grpc.CallOption) (*UpdateRoomReply, error) {
+	out := new(UpdateRoomReply)
+	err := c.cc.Invoke(ctx, "/arkinfra.v1.InfraService/UpdateRoom", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *infraServiceClient) ChangeProduction(ctx context.Context, in *ChangeProductionReq, opts ...grpc.CallOption) (*ChangeProductionReply, error) {
-	out := new(ChangeProductionReply)
+func (c *infraServiceClient) ChangeProduction(ctx context.Context, in *ChangeProductionReq, opts ...grpc.CallOption) (*Production, error) {
+	out := new(Production)
 	err := c.cc.Invoke(ctx, "/arkinfra.v1.InfraService/ChangeProduction", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -115,12 +126,14 @@ type InfraServiceServer interface {
 	GetInfo(context.Context, *User) (*GetInfoReply, error)
 	// 基建详情
 	GetDetail(context.Context, *User) (*GetDetailReply, error)
+	// 单个房间详情
+	GetRoomDetail(context.Context, *RoomReq) (*Room, error)
 	// 获取物品
 	GetProduction(context.Context, *GetProductionReq) (*GetProductionReply, error)
 	// 升级建筑
-	UpdateInfra(context.Context, *UpdateInfraReq) (*UpdateInfraReply, error)
+	UpdateRoom(context.Context, *RoomReq) (*UpdateRoomReply, error)
 	// 更改生产物品
-	ChangeProduction(context.Context, *ChangeProductionReq) (*ChangeProductionReply, error)
+	ChangeProduction(context.Context, *ChangeProductionReq) (*Production, error)
 	// 更改工作人员
 	ChangeWorker(context.Context, *ChangeWorkerReq) (*ChangeWorkerReply, error)
 	mustEmbedUnimplementedInfraServiceServer()
@@ -139,13 +152,16 @@ func (UnimplementedInfraServiceServer) GetInfo(context.Context, *User) (*GetInfo
 func (UnimplementedInfraServiceServer) GetDetail(context.Context, *User) (*GetDetailReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDetail not implemented")
 }
+func (UnimplementedInfraServiceServer) GetRoomDetail(context.Context, *RoomReq) (*Room, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRoomDetail not implemented")
+}
 func (UnimplementedInfraServiceServer) GetProduction(context.Context, *GetProductionReq) (*GetProductionReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProduction not implemented")
 }
-func (UnimplementedInfraServiceServer) UpdateInfra(context.Context, *UpdateInfraReq) (*UpdateInfraReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateInfra not implemented")
+func (UnimplementedInfraServiceServer) UpdateRoom(context.Context, *RoomReq) (*UpdateRoomReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRoom not implemented")
 }
-func (UnimplementedInfraServiceServer) ChangeProduction(context.Context, *ChangeProductionReq) (*ChangeProductionReply, error) {
+func (UnimplementedInfraServiceServer) ChangeProduction(context.Context, *ChangeProductionReq) (*Production, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeProduction not implemented")
 }
 func (UnimplementedInfraServiceServer) ChangeWorker(context.Context, *ChangeWorkerReq) (*ChangeWorkerReply, error) {
@@ -218,6 +234,24 @@ func _InfraService_GetDetail_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InfraService_GetRoomDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoomReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InfraServiceServer).GetRoomDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/arkinfra.v1.InfraService/GetRoomDetail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InfraServiceServer).GetRoomDetail(ctx, req.(*RoomReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InfraService_GetProduction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProductionReq)
 	if err := dec(in); err != nil {
@@ -236,20 +270,20 @@ func _InfraService_GetProduction_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InfraService_UpdateInfra_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateInfraReq)
+func _InfraService_UpdateRoom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoomReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InfraServiceServer).UpdateInfra(ctx, in)
+		return srv.(InfraServiceServer).UpdateRoom(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/arkinfra.v1.InfraService/UpdateInfra",
+		FullMethod: "/arkinfra.v1.InfraService/UpdateRoom",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InfraServiceServer).UpdateInfra(ctx, req.(*UpdateInfraReq))
+		return srv.(InfraServiceServer).UpdateRoom(ctx, req.(*RoomReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -310,12 +344,16 @@ var InfraService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InfraService_GetDetail_Handler,
 		},
 		{
+			MethodName: "GetRoomDetail",
+			Handler:    _InfraService_GetRoomDetail_Handler,
+		},
+		{
 			MethodName: "GetProduction",
 			Handler:    _InfraService_GetProduction_Handler,
 		},
 		{
-			MethodName: "UpdateInfra",
-			Handler:    _InfraService_UpdateInfra_Handler,
+			MethodName: "UpdateRoom",
+			Handler:    _InfraService_UpdateRoom_Handler,
 		},
 		{
 			MethodName: "ChangeProduction",

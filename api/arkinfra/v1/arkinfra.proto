@@ -17,14 +17,17 @@ service InfraService {
     // 基建详情
     rpc GetDetail(User) returns (GetDetailReply);
 
+    // 单个房间详情
+    rpc GetRoomDetail(RoomReq) returns (Room);
+
     // 获取物品
     rpc GetProduction(GetProductionReq) returns (GetProductionReply);
 
     // 升级建筑
-    rpc UpdateInfra(UpdateInfraReq) returns (UpdateInfraReply);
+    rpc UpdateRoom(RoomReq) returns (UpdateRoomReply);
 
     // 更改生产物品
-    rpc ChangeProduction(ChangeProductionReq) returns (ChangeProductionReply);
+    rpc ChangeProduction(ChangeProductionReq) returns (Production);
 
     // 更改工作人员
     rpc ChangeWorker(ChangeWorkerReq) returns (ChangeWorkerReply);
@@ -51,12 +54,13 @@ message Room {
 
     repeated string character_id = 4;
     repeated int32 character_ftg = 5;
+    repeated int32 room_bonus = 6;
 
-    int32 storage = 6;
-    int32 storage_used = 7;
+    int32 storage = 7;
+    int32 storage_used = 8;
 
-    int32 item_id = 8;
-    int32 item_progress = 9;
+    int32 item_id = 9;
+    int32 item_progress = 10;
 }
 
 // 每个房间的详细信息
@@ -64,6 +68,13 @@ message GetDetailReply {
     repeated Room rooms = 1;
 }
 
+// 获取单个房间的信息
+message RoomReq {
+    User user = 1;
+    int32 room_id = 2;
+}
+
+// 获取物品
 message GetProductionReq {
     User user = 1;
     repeated int32 room_id = 2;
@@ -78,30 +89,19 @@ message Production {
     int32 item_amount = 2;
 }
 
-message UpdateInfraReq {
-    User user = 1;
-    int32 room_id = 2;
-}
+// 升级房间
+message UpdateRoomReply {}
 
-message UpdateInfraReply {}
-
+// 更改生产物品
 message ChangeProductionReq {
-    User user = 1;
-    int32 room_id = 2;
-    int32 item_id = 3;
-    int32 item_amount = 4;
-}
-
-message ChangeProductionReply {
-    // 修改物品前生产完毕的物品和数量
-    int32 item_producted_id = 1;
-    int32 item_producted_amount = 2;
+    RoomReq room = 1;
+    int32 item_id = 2;
+    int32 item_amount = 3;
 }
 
 message ChangeWorkerReq {
-    User user = 1;
-    int32 room_id = 2;
-    repeated int32 character_id = 3;
+    RoomReq room = 1;
+    repeated int32 character_id = 2;
 }
 
 message ChangeWorkerReply {}
