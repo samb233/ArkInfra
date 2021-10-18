@@ -18,6 +18,10 @@ const (
 
 	// 默认房间的库存，固定为50
 	DefaultRoomStorage int = 50
+
+	// 最大计算时间：36小时
+	// 超过36小时的时间间隔会被视为36小时
+	MaxMinutes int = 2160
 )
 
 type Room struct {
@@ -70,9 +74,34 @@ func NewRoom(id, roomType, level int, lastOpTime time.Time, options ...RoomOptio
 	return room
 }
 
+// 房间初始化选项
+type RoomOptions func(*Room)
+
+func ProductOption(storageUsed, production int) RoomOptions {
+	return func(r *Room) {
+		r.StorageUsed = storageUsed
+		r.Production = production
+	}
+}
+
+func ItemOption(item *item.Item) RoomOptions {
+	return func(r *Room) {
+		r.Item = item
+	}
+}
+
+func WorkerOption(workers *worker.WorkerArray) RoomOptions {
+	return func(r *Room) {
+		r.Workers = workers
+	}
+}
+
 // 刷新房间信息
 func (r *Room) Flush() {
 	minutes := int(time.Since(r.LastOpTime).Minutes())
+	if minutes > MaxMinutes {
+		minutes = MaxMinutes
+	}
 	r.Produce(minutes)
 	r.UpdateOpTime()
 }
@@ -80,6 +109,13 @@ func (r *Room) Flush() {
 // 更新上次操作时间
 func (r *Room) UpdateOpTime() {
 	r.LastOpTime = time.Now()
+}
+
+// 设置工人
+func (r *Room) SetWorkers(workers *worker.WorkerArray) {
+	r.Flush()
+	r.Workers = workers
+	r.AddBonusStorage()
 }
 
 // 将奖励库存加到库存中
@@ -91,13 +127,6 @@ func (r *Room) AddBonusStorage() {
 	// 获取奖励库存
 	bonusStorage := r.Workers.GetBonusStorage(r.Item.ID)
 	r.Storage = DefaultRoomProductivity + bonusStorage
-}
-
-// 设置工人
-func (r *Room) SetWorkers(workers *worker.WorkerArray) {
-	r.Flush()
-	r.Workers = workers
-	r.AddBonusStorage()
 }
 
 // 获取物品
@@ -119,6 +148,11 @@ func (r *Room) GetItemAndReSet(item *item.Item) (itemID int, amount int) {
 	r.AddBonusStorage()
 
 	return
+}
+
+// 获取物品数量，作展示用
+func (r *Room) GetItemAmount() int {
+	return r.StorageUsed / r.Item.Storage
 }
 
 // 生产
@@ -167,26 +201,4 @@ func (r *Room) IsFull() bool {
 // 是否有工人疲劳
 func (r *Room) IsOneExhausted() bool {
 	return r.Workers.IsOneExhausted()
-}
-
-// 房间初始化选项
-type RoomOptions func(*Room)
-
-func ProductOption(storageUsed, production int) RoomOptions {
-	return func(r *Room) {
-		r.StorageUsed = storageUsed
-		r.Production = production
-	}
-}
-
-func ItemOption(item *item.Item) RoomOptions {
-	return func(r *Room) {
-		r.Item = item
-	}
-}
-
-func WorkerOption(workers *worker.WorkerArray) RoomOptions {
-	return func(r *Room) {
-		r.Workers = workers
-	}
 }
