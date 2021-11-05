@@ -11,16 +11,16 @@ import (
 )
 
 type InfraRepo interface {
-	GetInfra(ctx context.Context, id int) (*Infra, error)
+	GetInfra(ctx context.Context, id int64) (*Infra, error)
 	SaveInfra(ctx context.Context, infra *Infra) error
 }
 
 type RoomRepo interface {
-	GetRoom(ctx context.Context, id int) (*room.Room, error)
+	GetRoom(ctx context.Context, id int32) (*room.Room, error)
 	SaveRoom(ctx context.Context, room *room.Room) error
 }
 
 type WorkerRepo interface {
-	GetWorker(ctx context.Context, userID, charID int) (*worker.Worker, error)
-	SaveWorker(ctx context.Context, userID int, worker *worker.Worker) error
+	GetWorker(ctx context.Context, userID int64, charID int32) (*worker.Worker, error)
+	SaveWorker(ctx context.Context, userID int64, worker *worker.Worker) error
 }
