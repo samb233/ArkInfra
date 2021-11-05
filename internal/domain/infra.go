@@ -10,21 +10,21 @@ import (
 
 type Infra struct {
 	// 玩家ID
-	ID int
+	ID int64
 
 	// 房间数组
 	Rooms []*room.Room
 
 	// 产品的数量，用于展示
-	Producted int
+	Producted int32
 
 	// 停工的数量，用于展示
-	StopProduce int
+	StopProduce int32
 }
 
 // 新建基建
 // 在新建之后调用Flush方法刷新状态
-func NewInfra(id int, rooms ...*room.Room) *Infra {
+func NewInfra(id int64, rooms ...*room.Room) *Infra {
 	infra := &Infra{
 		ID:    id,
 		Rooms: rooms,
@@ -37,7 +37,7 @@ func NewInfra(id int, rooms ...*room.Room) *Infra {
 // 会根据当前的时间与上次时间的差调用房间的生产方法
 // 更新Infra中用于展示的Producted、StopProduced等属性
 func (infra *Infra) Flush() {
-	produced, stopProduced := 0, 0
+	var produced, stopProduced int32 = 0, 0
 	for _, room := range infra.Rooms {
 		room.Flush()
 		produced = produced + room.GetItemAmount()

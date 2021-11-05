@@ -35,21 +35,21 @@ func TestGetBonusStorages(t *testing.T) {
 
 	t.Run("get bonus with item 123", func(t *testing.T) {
 		t.Helper()
-		want := 20
+		var want int32 = 20
 		got := wa.GetBonusStorage(123)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("test bonus with item 234", func(t *testing.T) {
 		t.Helper()
-		want := 10
+		var want int32 = 10
 		got := wa.GetBonusStorage(234)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("test bonus with item 456", func(t *testing.T) {
 		t.Helper()
-		want := 0
+		var want int32 = 0
 		got := wa.GetBonusStorage(456)
 		assert.Equal(t, want, got)
 	})
@@ -60,21 +60,21 @@ func TestGetBonusProductivities(t *testing.T) {
 
 	t.Run("get bonus with item 123", func(t *testing.T) {
 		t.Helper()
-		want := 50
+		var want int32 = 50
 		got := wa.GetBonusProductivity(123)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("test bonus with item 234", func(t *testing.T) {
 		t.Helper()
-		want := 25
+		var want int32 = 25
 		got := wa.GetBonusProductivity(234)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("test bonus with item 456", func(t *testing.T) {
 		t.Helper()
-		want := 0
+		var want int32 = 0
 		got := wa.GetBonusProductivity(456)
 		assert.Equal(t, want, got)
 	})
@@ -82,10 +82,10 @@ func TestGetBonusProductivities(t *testing.T) {
 
 func TestWAProduce(t *testing.T) {
 	tests := map[string]struct {
-		item           int
-		minutes        int
-		wantminutes    int
-		wantproduction int
+		item           int32
+		minutes        int32
+		wantminutes    int32
+		wantproduction int32
 	}{
 		"50 minutes, use w1 bonus": {
 			item:           123456,

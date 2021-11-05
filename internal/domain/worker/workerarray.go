@@ -38,7 +38,7 @@ func (wa *WorkerArray) IsAllExhausted() bool {
 
 // 获取奖励库存
 // TODO: 合并两个方法
-func (wa *WorkerArray) GetBonusStorage(itemID int) (bonusStorage int) {
+func (wa *WorkerArray) GetBonusStorage(itemID int32) (bonusStorage int32) {
 	for _, worker := range wa.Workers {
 		bonusStorage = bonusStorage + worker.GetBonusStorage(itemID)
 	}
@@ -46,7 +46,7 @@ func (wa *WorkerArray) GetBonusStorage(itemID int) (bonusStorage int) {
 }
 
 // 获取奖励生产力，用于展示
-func (wa *WorkerArray) GetBonusProductivity(itemID int) (bonusProductivity int) {
+func (wa *WorkerArray) GetBonusProductivity(itemID int32) (bonusProductivity int32) {
 	for _, worker := range wa.Workers {
 		bonusProductivity = bonusProductivity + worker.GetBonusProductivity(itemID)
 	}
@@ -59,7 +59,7 @@ func (wa *WorkerArray) GetBonusProductivity(itemID int) (bonusProductivity int) 
 // minutes: 生产的时间，单位为分钟
 // maxWorkingMinutes: 实际生产的最大时间
 // production: 工人合计生产的生产力
-func (wa *WorkerArray) Produce(item int, minutes int) (maxWoringMinutes int, production int) {
+func (wa *WorkerArray) Produce(item int32, minutes int32) (maxWoringMinutes int32, production int32) {
 	maxWoringMinutes = 0
 
 	for _, worker := range wa.Workers {

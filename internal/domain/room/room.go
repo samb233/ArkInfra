@@ -14,38 +14,38 @@ const (
 	// TODO: 弄清需求中是否有根据房间等级调整这些值
 
 	// 默认房间的生产力，固定为100
-	DefaultRoomProductivity int = 100
+	DefaultRoomProductivity int32 = 100
 
 	// 默认房间的库存，固定为50
-	DefaultRoomStorage int = 50
+	DefaultRoomStorage int32 = 50
 
 	// 最大计算时间：36小时
 	// 超过36小时的时间间隔会被视为36小时
-	MaxMinutes int = 2160
+	MaxMinutes int32 = 2160
 )
 
 type Room struct {
 	// 房间ID
-	ID int
+	ID int32
 
 	// 房间类型
 	// TODO: 类型定义
-	RoomType int
+	RoomType int32
 
 	// 房间等级
-	Level int
+	Level int32
 
 	// 上次操作时间
 	LastOpTime time.Time
 
 	// 房间库存
-	Storage int
+	Storage int32
 
 	// 已使用的库存
-	StorageUsed int
+	StorageUsed int32
 
 	// 当前生产进度（还没达到物品生产的部分）
-	Production int
+	Production int32
 
 	// 当前生产的物品
 	// 包含物品ID、单个物品占用库存、单个物品需要消耗生产力
@@ -56,7 +56,7 @@ type Room struct {
 }
 
 // 新建房间
-func NewRoom(id, roomType, level int, lastOpTime time.Time, options ...RoomOptions) *Room {
+func NewRoom(id, roomType, level int32, lastOpTime time.Time, options ...RoomOptions) *Room {
 	room := &Room{
 		ID:         id,
 		RoomType:   roomType,
@@ -77,7 +77,7 @@ func NewRoom(id, roomType, level int, lastOpTime time.Time, options ...RoomOptio
 // 房间初始化选项
 type RoomOptions func(*Room)
 
-func ProductOption(storageUsed, production int) RoomOptions {
+func ProductOption(storageUsed, production int32) RoomOptions {
 	return func(r *Room) {
 		r.StorageUsed = storageUsed
 		r.Production = production
@@ -98,7 +98,7 @@ func WorkerOption(workers *worker.WorkerArray) RoomOptions {
 
 // 刷新房间信息
 func (r *Room) Flush() {
-	minutes := int(time.Since(r.LastOpTime).Minutes())
+	minutes := int32(time.Since(r.LastOpTime).Minutes())
 	if minutes > MaxMinutes {
 		minutes = MaxMinutes
 	}
@@ -130,7 +130,7 @@ func (r *Room) AddBonusStorage() {
 }
 
 // 获取物品
-func (r *Room) GetItem() (itemID int, amount int) {
+func (r *Room) GetItem() (itemID int32, amount int32) {
 	r.Flush()
 
 	itemID = r.Item.ID
@@ -141,7 +141,7 @@ func (r *Room) GetItem() (itemID int, amount int) {
 
 // 重设物品
 // 重设时会清空库存，获取物品
-func (r *Room) GetItemAndReSet(item *item.Item) (itemID int, amount int) {
+func (r *Room) GetItemAndReSet(item *item.Item) (itemID int32, amount int32) {
 	itemID, amount = r.GetItem()
 
 	r.Item = item
@@ -151,14 +151,14 @@ func (r *Room) GetItemAndReSet(item *item.Item) (itemID int, amount int) {
 }
 
 // 获取物品数量，作展示用
-func (r *Room) GetItemAmount() int {
+func (r *Room) GetItemAmount() int32 {
 	return r.StorageUsed / r.Item.Storage
 }
 
 // 生产
 // 根据经过的时间，进行生产物品的操作
 // minutes: 从上次操作到现在经过的分钟数
-func (r *Room) Produce(minutes int) {
+func (r *Room) Produce(minutes int32) {
 	if r.IsNotWorking() {
 		return
 	}

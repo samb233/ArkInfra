@@ -5,11 +5,11 @@ package item
 
 type Item struct {
 	// 物品ID
-	ID int
+	ID int32
 
 	// 每个物品占用多少库存
-	Storage int
+	Storage int32
 
 	// 每个物品需要消耗多少生产力
-	Production int
+	Production int32
 }
